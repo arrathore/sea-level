@@ -1,0 +1,24 @@
+This project will analyze long-term changes in global and regional sea
+levels using satellite altimetry data provided by the NASA sea level
+data server. Python-based data analysis tools will be used to retrieve
+sea level datasets and compute the global mean sea level over time. A
+primary objective will be to estimate the long-term linear trend in
+the sea level rise and investigate whether there is a measurable
+acceleration in the rate of increase. The analysis will help
+illustrate how satellite observations can be used to detect changes in
+the Earth's ocean system.
+
+In addition to global analysis, the project will examine regional
+variations in sea level change. Sea level does not rise uniformly
+across the globe due to ocean circulation, temperature differences,
+and other factors. By dividing the dataset into geographic regions,
+the project will compare regional trends with the global average to
+identify areas experiencing faster or slower sea level change. Python
+visualization libraries will be used to create plots and potentially an
+interactive map showing these sea level trends. The visualizations will
+highlight the differences in sea level rise across different parts of
+the global ocean. Overall, the project will demonstrate how
+large-scale datasets can be used and analyzed programmatically to
+reveal meaningful climate-related patterns and changes in ocean
+behavior.
+
