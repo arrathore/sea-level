@@ -12,8 +12,11 @@ available from NASA:
 Once you have downloaded the datasets, you can begin using the scripts.
 
 1. Install dependencies
+
 		pip install -r requirements.txt
+		
 2. Run any script
+
 		python3 simple_sealevel.py
 		python3 gridded_analysis.py
 
