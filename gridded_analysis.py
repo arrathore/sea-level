@@ -86,14 +86,24 @@ plt.show()
 # calcluate trend and acceleration
 t = np.arange(len(ds.time))
 
-coeffs_linear = np.polyfit(t, gmsl, 1)
-coeffs_quad = np.polyfit(t, gmsl, 2)
+# drop NaNs before fitting
+valid = ~np.isnan(gmsl.values)
+t_valid = t[valid]
+gmsl_valid = gmsl.values[valid]
 
-trend = coeffs_linear[0]
-acceleration = 2 * coeffs_quad[0]
+if valid.sum() < 10:
+    print("Warning: too few valid timesteps to fit a trend")
+else:
+    coeffs_linear = np.polyfit(t_valid, gmsl_valid, 1)
+    coeffs_quad = np.polyfit(t_valid, gmsl_valid, 2)
+    trend = coeffs_linear[0]
+    acceleration = 2 * coeffs_quad[0]
 
-print("Trend (mm/timestep):", trend)
-print("Acceleration:", acceleration)
+    # convert to per-year using actual time axis
+    median_dt = np.median(np.diff(ds.time.values).astype("timedelta64[D]").astype(int))
+    timesteps_per_year = 365.25 / median_dt
+    print(f"Trend:        {trend * timesteps_per_year:.3f} mm/year")
+    print(f"Acceleration: {acceleration * timesteps_per_year:.4f} mm/year")
 
 # regional analysis
 regions = { # define regions to analyze
@@ -185,9 +195,9 @@ def plot_sea_level_change_map(sla, n_years=5, vmax=None, use_means=True):
     end_year = int(sla.time[-1].dt.year)
 
     plt.colorbar(img, ax=ax, orientation="horizontal", pad=0.05,
-                 label="Sea Level Change (mm)", shrink=0.6)
+                 label="Change in Sea Level Anomaly (mm)", shrink=0.6)
     ax.set_title(
-        f"Sea Level Change {end_year-n_years}-{end_year}\n"
+        f"Change in Sea Level Anomaly {end_year-n_years}-{end_year}\n"
         f"(mean of first vs. last {n_years} years)",
         fontsize=14
     )
