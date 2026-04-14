@@ -5,6 +5,12 @@ import re
 import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+import pyproj
+pyproj.datadir.set_data_dir('/opt/local/lib/proj9/share/proj/')
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 
 # load dataset from all files
 print("loading data...")
@@ -131,4 +137,63 @@ plt.legend()
 plt.title("Regional vs Global Sea level (Deseasoned)")
 plt.ylabel("Sea Level Anomaly (mm)")
 plt.show()
+
+# map total change to show differences in regions
+
+# calcluate per-pixel sea level change using mean of first and last n_years
+def compute_endpoint_trend(sla, n_years=5, use_means=True):
+    if use_means:
+        timesteps_per_year = len(sla.time) / (
+            (sla.time[-1] - sla.time[0]).values / np.timedelta64(1, 'D') / 365.25
+        )
+        n = int(n_years * timesteps_per_year)
+
+        start = sla.isel(time=slice(0, n)).mean("time")
+        end = sla.isel(time=slice(-n, None)).mean("time")
+    else:
+        start = sla.isel(time=0)
+        end = sla.isel(time=-1)
+
+    return (end - start) * 100 # convert to cm
+
+# plot the map
+def plot_sea_level_change_map(sla, n_years=5, vmax=None, use_means=True):
+    change = compute_endpoint_trend(sla, n_years=n_years).compute()
+
+    # calculate scale
+    if vmax is None:
+        vmax = float(np.nanpercentile(np.abs(change.values), 95))
+
+    fig, ax = plt.subplots(
+        figsize=(16, 8),
+        subplot_kw={"projection": ccrs.Robinson()}
+    )
+
+    img = ax.pcolormesh(
+        sla.lon, sla.lat, change,
+        transform=ccrs.PlateCarree(),
+        cmap="RdBu_r",
+        norm=mcolors.TwoSlopeNorm(vmin=-vmax, vcenter=0, vmax=vmax),
+        shading="auto",
+    )
+
+    ax.add_feature(cfeature.LAND, facecolor="lightgray", zorder=1)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.5, zorder=2)
+    ax.gridlines(draw_labels=True, linewidth=0.3, alpha=0.5)
+
+    start_year = int(sla.time[0].dt.year)
+    end_year = int(sla.time[-1].dt.year)
+
+    plt.colorbar(img, ax=ax, orientation="horizontal", pad=0.05,
+                 label="Sea Level Change (mm)", shrink=0.6)
+    ax.set_title(
+        f"Sea Level Change {end_year-n_years}-{end_year}\n"
+        f"(mean of first vs. last {n_years} years)",
+        fontsize=14
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+plot_sea_level_change_map(sla, n_years=10, use_means=False)
 
