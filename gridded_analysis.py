@@ -195,5 +195,5 @@ def plot_sea_level_change_map(sla, n_years=5, vmax=None, use_means=True):
     plt.tight_layout()
     plt.show()
 
-plot_sea_level_change_map(sla, n_years=10, use_means=False)
+plot_sea_level_change_map(sla, n_years=10, use_means=True)
 
