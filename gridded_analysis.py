@@ -195,7 +195,7 @@ def plot_sea_level_change_map(sla, n_years=5, vmax=None, use_means=True):
     end_year = int(sla.time[-1].dt.year)
 
     plt.colorbar(img, ax=ax, orientation="horizontal", pad=0.05,
-                 label="Change in Sea Level Anomaly (mm)", shrink=0.6)
+                 label="Change in Sea Level Anomaly (cm)", shrink=0.6)
     ax.set_title(
         f"Change in Sea Level Anomaly {end_year-n_years}-{end_year}\n"
         f"(mean of first vs. last {n_years} years)",
